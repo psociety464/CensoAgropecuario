@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        if (!/^[A-Z0-9]{3,6}$/.test(nuevoSegmento)) {
+        if (!/^[A-Z0-9]{3,12}$/.test(nuevoSegmento)) {
             alert('El segmento debe contener solo letras mayúsculas y números (3-6 caracteres)');
             return;
         }
