@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Archivos de Texto</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Censo Agropecuario </h1>
+        
+        <!-- Gestión de Segmentos -->
+        <div class="segmentos-container">
+            <h3>Gestión de Segmentos</h3>
+            <div class="segmentos-form">
+                <input type="text" id="nuevoSegmento" placeholder="Ingrese un nuevo código de segmento">
+                <button id="agregarSegmento" class="btn-purple">Agregar Segmento</button>
+            </div>
+            <p class="aviso-segmento">Debe agregar al menos un segmento para poder guardar registros</p>
+            <div class="segmentos-lista" id="listaSegmentos">
+                <p>No hay segmentos agregados</p>
+            </div>
+        </div>
+        
+        <!-- Gestión de Bloques -->
+        <div class="segmentos-container">
+            <h3>Gestión de Bloques</h3>
+            <div class="segmentos-form">
+                <input type="text" id="nuevoBloque" placeholder="Ingrese un nuevo número de bloque">
+                <button id="agregarBloque" class="btn-gray">Agregar Bloque</button>
+            </div>
+            <p class="aviso-segmento">Debe agregar al menos un bloque para poder guardar registros</p>
+            <div class="segmentos-lista" id="listaBloques">
+                <p>No hay bloques agregados</p>
+            </div>
+        </div>
+        
+        <!-- Formulario principal -->
+        <div class="form-group">
+            <label for="segmento">Segmento:</label>
+            <select id="segmento" disabled>
+                <option value="">-- Agregue segmentos primero --</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="bloque">Bloque:</label>
+            <select id="bloque" disabled>
+                <option value="">-- Agregue bloques primero --</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="numeroEstructura">Número de Estructura:</label>
+            <input type="text" id="numeroEstructura" placeholder="Ingrese el número de estructura">
+        </div>
+        
+        <div class="form-group">
+            <label for="tipoEstructura">Tipo de Estructura:</label>
+            <select id="tipoEstructura">
+                <option value="">-- Seleccione un tipo --</option>
+                <option value="Pequeño Productor">Pequeño Productor</option>
+                <option value="Producción de Patio">Producción de Patio</option>
+                <option value="Estructura Complementaria">Estructura Complementaria</option>
+                <option value="Estructura sin Producción">Estructura sin Producción</option>
+                <option value="Guardada Parcial">Guardada Parcial</option>
+                <option value="Estructura en Construcción">Estructura en Construcción</option>
+                <option value="Estructura con Cita">Estructura con Cita</option>
+                <option value="Estructura Desocupada">Estructura Desocupada</option>
+                <option value="Ausentes">Ausentes</option>
+                <option value="Rechazos">Rechazos</option>
+            </select>
+        </div>
+        
+        <div id="subEstructura">
+            <div class="form-group">
+                <label>Tipo de Cultivo (Pequeño Productor):</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="maiz" value="Maíz">
+                        <label for="maiz">Maíz</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="frijol" value="Frijol">
+                        <label for="frijol">Frijol</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="maicillo" value="Maicillo">
+                        <label for="maicillo">Maicillo</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="botones">
+            <button id="guardar" class="btn-blue">Guardar Registro</button>
+            <button id="generar" class="btn-green">Generar Archivo</button>
+            <button id="limpiar" class="btn-red">Limpiar Todo</button>
+        </div>
+        
+        <div id="registrosGuardados">
+            <h3>Registros Guardados</h3>
+            <div id="listaRegistros">
+                <p>No hay registros guardados</p>
+            </div>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+
+    <footer>
+        Desarrollado por: Tec. Luis Guerra
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
