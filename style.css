@@ -210,7 +210,15 @@ footer {
     font-size: 14px;
 }
 
-/* Media Queries para Responsividad */
+.uppercase-input {
+    text-transform: uppercase;
+}
+
+.registro-item span {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
 @media (max-width: 768px) {
     .checkbox-group {
         grid-template-columns: repeat(2, 1fr);
