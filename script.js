@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarSelectBloques();
         actualizarListaRegistros();
         actualizarEstadoBotones();
-        actualizarContadorRegistros(); // Inicializar contador
+        actualizarContadorRegistros();
     }
 
     // Funciones para actualizar las listas
@@ -139,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
         elementos.btnGenerar.disabled = registros.length === 0;
     }
 
-    // Función para mostrar el contador de registros
     function actualizarContadorRegistros() {
         const contadorExistente = document.getElementById('contador-registros');
         
@@ -165,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Función para mostrar notificaciones temporales
     function mostrarNotificacion(mensaje) {
         const notificacion = document.createElement('div');
         notificacion.textContent = mensaje;
@@ -251,6 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tipoEstructura = elementos.tipoEstructura.value;
         
         if (!codigoTecnico) return alert('Ingrese su código de técnico');
+        if (!segmento) return alert('Seleccione un segmento');
         if (!bloque) return alert('Seleccione un bloque');
         if (!numeroEstructura) return alert('Ingrese el número de estructura');
         if (!tipoEstructura) return alert('Seleccione un tipo de estructura');
@@ -323,10 +322,9 @@ document.addEventListener('DOMContentLoaded', function() {
         contenido += `${'-'.repeat(30)}\n`;
         contenido += `TOTAL REGISTROS: ${registros.length}\n`;
         
-        // Mostrar y descargar
+        // Mostrar y descargar (con UTF-8 para tildes/ñ)
         elementos.output.textContent = contenido;
-        
-        const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+        const blob = new Blob(["\uFEFF" + contenido], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
