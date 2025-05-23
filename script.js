@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Elementos del DOM
     const elementos = {
+        codigoTecnico: document.getElementById('codigoTecnico'),
         nuevoSegmento: document.getElementById('nuevoSegmento'),
         agregarSegmento: document.getElementById('agregarSegmento'),
         listaSegmentos: document.getElementById('listaSegmentos'),
@@ -29,405 +30,98 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cargar datos guardados al iniciar
     function cargarDatosIniciales() {
-        // Cargar segmentos desde localStorage
         const segmentosGuardados = localStorage.getItem('segmentosPersonalizados');
-        if (segmentosGuardados) {
-            segmentos = JSON.parse(segmentosGuardados);
-            actualizarListaSegmentos();
-            actualizarSelectSegmentos();
-        }
+        if (segmentosGuardados) segmentos = JSON.parse(segmentosGuardados);
         
-        // Cargar bloques desde localStorage
         const bloquesGuardados = localStorage.getItem('bloquesPersonalizados');
-        if (bloquesGuardados) {
-            bloques = JSON.parse(bloquesGuardados);
-            actualizarListaBloques();
-            actualizarSelectBloques();
-        }
+        if (bloquesGuardados) bloques = JSON.parse(bloquesGuardados);
         
-        // Cargar registros desde localStorage
         const registrosGuardados = localStorage.getItem('registrosEstructuras');
-        if (registrosGuardados) {
-            registros = JSON.parse(registrosGuardados);
-            actualizarListaRegistros();
-        }
+        if (registrosGuardados) registros = JSON.parse(registrosGuardados);
         
-        // Habilitar botones si hay datos
+        actualizarListaSegmentos();
+        actualizarSelectSegmentos();
+        actualizarListaBloques();
+        actualizarSelectBloques();
+        actualizarListaRegistros();
         actualizarEstadoBotones();
     }
 
-    // Función para actualizar la lista visual de segmentos
+    // Funciones para actualizar las listas
     function actualizarListaSegmentos() {
-        elementos.listaSegmentos.innerHTML = '';
+        elementos.listaSegmentos.innerHTML = segmentos.length ? 
+            segmentos.map((seg, i) => `
+                <div class="segmento-item">
+                    <span>${seg}</span>
+                    <span class="segmento-borrar" data-index="${i}">×</span>
+                </div>
+            `).join('') : '<p>No hay segmentos agregados</p>';
         
-        if (segmentos.length === 0) {
-            elementos.listaSegmentos.innerHTML = '<p>No hay segmentos agregados</p>';
-            return;
-        }
-        
-        segmentos.forEach((segmento, index) => {
-            const segmentoItem = document.createElement('div');
-            segmentoItem.className = 'segmento-item';
-            segmentoItem.innerHTML = `
-                <span>${segmento}</span>
-                <span class="segmento-borrar" data-index="${index}" data-tipo="segmento">×</span>
-            `;
-            elementos.listaSegmentos.appendChild(segmentoItem);
-        });
-        
-        // Agregar eventos a los botones de borrar
-        document.querySelectorAll('.segmento-borrar[data-tipo="segmento"]').forEach(btn => {
+        document.querySelectorAll('.segmento-borrar').forEach(btn => {
             btn.addEventListener('click', function() {
                 const index = parseInt(this.getAttribute('data-index'));
-                if (confirm(`¿Está seguro que desea eliminar el segmento "${segmentos[index]}"?`)) {
+                if (confirm(`¿Eliminar el segmento "${segmentos[index]}"?`)) {
                     segmentos.splice(index, 1);
                     localStorage.setItem('segmentosPersonalizados', JSON.stringify(segmentos));
                     actualizarListaSegmentos();
                     actualizarSelectSegmentos();
-                    actualizarEstadoBotones();
-                    
-                    // Verificar si el segmento eliminado estaba en uso
-                    const segmentoEnUso = registros.some(reg => reg.segmento === segmentos[index]);
-                    if (segmentoEnUso) {
-                        alert('Este segmento está siendo usado en registros existentes. Revise sus registros guardados.');
-                    }
                 }
             });
         });
     }
-    
-    // Función para actualizar la lista visual de bloques
+
     function actualizarListaBloques() {
-        elementos.listaBloques.innerHTML = '';
+        elementos.listaBloques.innerHTML = bloques.length ? 
+            bloques.map((blq, i) => `
+                <div class="segmento-item">
+                    <span>${blq}</span>
+                    <span class="segmento-borrar" data-index="${i}">×</span>
+                </div>
+            `).join('') : '<p>No hay bloques agregados</p>';
         
-        if (bloques.length === 0) {
-            elementos.listaBloques.innerHTML = '<p>No hay bloques agregados</p>';
-            return;
-        }
-        
-        bloques.forEach((bloque, index) => {
-            const bloqueItem = document.createElement('div');
-            bloqueItem.className = 'segmento-item';
-            bloqueItem.innerHTML = `
-                <span>${bloque}</span>
-                <span class="segmento-borrar" data-index="${index}" data-tipo="bloque">×</span>
-            `;
-            elementos.listaBloques.appendChild(bloqueItem);
-        });
-        
-        // Agregar eventos a los botones de borrar
-        document.querySelectorAll('.segmento-borrar[data-tipo="bloque"]').forEach(btn => {
+        document.querySelectorAll('.segmento-borrar').forEach(btn => {
             btn.addEventListener('click', function() {
                 const index = parseInt(this.getAttribute('data-index'));
-                if (confirm(`¿Está seguro que desea eliminar el bloque "${bloques[index]}"?`)) {
+                if (confirm(`¿Eliminar el bloque "${bloques[index]}"?`)) {
                     bloques.splice(index, 1);
                     localStorage.setItem('bloquesPersonalizados', JSON.stringify(bloques));
                     actualizarListaBloques();
                     actualizarSelectBloques();
-                    actualizarEstadoBotones();
-                    
-                    // Verificar si el bloque eliminado estaba en uso
-                    const bloqueEnUso = registros.some(reg => reg.bloque === bloques[index]);
-                    if (bloqueEnUso) {
-                        alert('Este bloque está siendo usado en registros existentes. Revise sus registros guardados.');
-                    }
                 }
             });
         });
     }
-    
-    // Función para actualizar el select de segmentos
+
     function actualizarSelectSegmentos() {
-        elementos.selectSegmento.innerHTML = '';
-        
-        if (segmentos.length === 0) {
-            elementos.selectSegmento.disabled = true;
-            elementos.selectSegmento.innerHTML = '<option value="">-- Agregue segmentos primero --</option>';
-        } else {
-            elementos.selectSegmento.disabled = false;
-            segmentos.forEach(segmento => {
-                const option = document.createElement('option');
-                option.value = segmento;
-                option.textContent = segmento;
-                elementos.selectSegmento.appendChild(option);
-            });
-        }
+        elementos.selectSegmento.innerHTML = segmentos.length ? 
+            segmentos.map(seg => `<option value="${seg}">${seg}</option>`).join('') : 
+            '<option value="">-- Agregue segmentos primero --</option>';
+        elementos.selectSegmento.disabled = segmentos.length === 0;
     }
-    
-    // Función para actualizar el select de bloques
+
     function actualizarSelectBloques() {
-        elementos.selectBloque.innerHTML = '';
-        
-        if (bloques.length === 0) {
-            elementos.selectBloque.disabled = true;
-            elementos.selectBloque.innerHTML = '<option value="">-- Agregue bloques primero --</option>';
-        } else {
-            elementos.selectBloque.disabled = false;
-            bloques.forEach(bloque => {
-                const option = document.createElement('option');
-                option.value = bloque;
-                option.textContent = bloque;
-                elementos.selectBloque.appendChild(option);
-            });
-        }
+        elementos.selectBloque.innerHTML = bloques.length ? 
+            bloques.map(blq => `<option value="${blq}">${blq}</option>`).join('') : 
+            '<option value="">-- Agregue bloques primero --</option>';
+        elementos.selectBloque.disabled = bloques.length === 0;
     }
-    
-    // Función para actualizar estado de los botones
-    function actualizarEstadoBotones() {
-        elementos.btnGuardar.disabled = segmentos.length === 0 || bloques.length === 0;
-        elementos.btnGenerar.disabled = registros.length === 0;
-    }
-    
-    // Agregar nuevo segmento
-    elementos.agregarSegmento.addEventListener('click', function() {
-        const nuevoSegmento = elementos.nuevoSegmento.value.trim();
-        
-        if (!nuevoSegmento) {
-            alert('Por favor ingrese un código de segmento');
-            return;
-        }
-        
-        if (!/^[A-Z0-9]{3,12}$/.test(nuevoSegmento)) {
-            alert('El segmento debe contener solo numeros');
-            return;
-        }
-        
-        if (segmentos.includes(nuevoSegmento)) {
-            alert('Este segmento ya existe');
-            return;
-        }
-        
-        segmentos.push(nuevoSegmento);
-        segmentos.sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
-        localStorage.setItem('segmentosPersonalizados', JSON.stringify(segmentos));
-        elementos.nuevoSegmento.value = '';
-        actualizarListaSegmentos();
-        actualizarSelectSegmentos();
-        actualizarEstadoBotones();
-    });
-    
-    // Agregar nuevo bloque
-    elementos.agregarBloque.addEventListener('click', function() {
-        const nuevoBloque = elementos.nuevoBloque.value.trim();
-        
-        if (!nuevoBloque) {
-            alert('Por favor ingrese un número de bloque');
-            return;
-        }
-        
-        if (!/^[0-9]{1,3}$/.test(nuevoBloque)) {
-            alert('El bloque debe contener solo números (1-3 dígitos)');
-            return;
-        }
-        
-        if (bloques.includes(nuevoBloque)) {
-            alert('Este bloque ya existe');
-            return;
-        }
-        
-        bloques.push(nuevoBloque);
-        bloques.sort((a, b) => a - b);
-        localStorage.setItem('bloquesPersonalizados', JSON.stringify(bloques));
-        elementos.nuevoBloque.value = '';
-        actualizarListaBloques();
-        actualizarSelectBloques();
-        actualizarEstadoBotones();
-    });
-    
-    // Permitir agregar segmento con Enter
-    elementos.nuevoSegmento.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            elementos.agregarSegmento.click();
-        }
-    });
-    
-    // Permitir agregar bloque con Enter
-    elementos.nuevoBloque.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            elementos.agregarBloque.click();
-        }
-    });
 
-    // Mostrar/ocultar subestructura para Pequeño Productor
-    elementos.tipoEstructura.addEventListener('change', function() {
-        if (this.value === 'Pequeño Productor') {
-            elementos.subEstructura.style.display = 'block';
-        } else {
-            elementos.subEstructura.style.display = 'none';
-        }
-    });
-
-    // Guardar registro
-    elementos.btnGuardar.addEventListener('click', function() {
-        const segmento = elementos.selectSegmento.value;
-        const bloque = elementos.selectBloque.value;
-        const numeroEstructura = elementos.numeroEstructura.value;
-        const tipoEstructura = elementos.tipoEstructura.value;
-        
-        if (!bloque) {
-            alert('Por favor seleccione un bloque');
-            return;
-        }
-        
-        if (!numeroEstructura) {
-            alert('Por favor ingrese el número de estructura');
-            return;
-        }
-        
-        if (!tipoEstructura) {
-            alert('Por favor seleccione un tipo de estructura');
-            return;
-        }
-        
-        let cultivos = [];
-        if (tipoEstructura === 'Pequeño Productor') {
-            const maizChecked = document.getElementById('maiz').checked;
-            const frijolChecked = document.getElementById('frijol').checked;
-            const maicilloChecked = document.getElementById('maicillo').checked;
-            
-            if (!maizChecked && !frijolChecked && !maicilloChecked) {
-                alert('Por favor seleccione al menos un tipo de cultivo');
-                return;
-            }
-            
-            if (maizChecked) cultivos.push('Maíz');
-            if (frijolChecked) cultivos.push('Frijol');
-            if (maicilloChecked) cultivos.push('Maicillo');
-        }
-        
-        const nuevoRegistro = {
-            segmento,
-            bloque,
-            numeroEstructura,
-            tipoEstructura,
-            cultivos,
-            fecha: new Date().toLocaleString()
-        };
-        
-        registros.push(nuevoRegistro);
-        localStorage.setItem('registrosEstructuras', JSON.stringify(registros));
-        actualizarListaRegistros();
-        actualizarEstadoBotones();
-        
-        // Limpiar campos (excepto segmento y bloque)
-        elementos.numeroEstructura.value = '';
-        elementos.tipoEstructura.value = '';
-        document.getElementById('maiz').checked = false;
-        document.getElementById('frijol').checked = false;
-        document.getElementById('maicillo').checked = false;
-        elementos.subEstructura.style.display = 'none';
-        
-        alert('Registro guardado correctamente');
-    });
-
-    // Generar archivo con resumen
-    elementos.btnGenerar.addEventListener('click', function() {
-        if (registros.length === 0) {
-            alert('No hay registros guardados para generar el archivo');
-            return;
-        }
-        
-        let archivoContenido = 'REGISTROS DE ESTRUCTURAS\n\n';
-        
-        // Contadores para el resumen
-        const contadores = {
-            'Pequeño Productor': 0,
-            'Producción de Patio': 0,
-            'Estructura Complementaria': 0,
-            'Estructura sin Producción': 0,
-            'Guardada Parcial': 0,
-            'Estructura en Construcción': 0,
-            'Estructura con Cita': 0,
-            'Estructura Desocupada': 0,
-            'Ausentes': 0,
-            'Rechazos': 0
-        };
-        
-        registros.forEach((registro, index) => {
-            archivoContenido += `Registro ${index + 1}:\n`;
-            archivoContenido += `Segmento: ${registro.segmento}\n`;
-            archivoContenido += `Bloque: ${registro.bloque}\n`;
-            archivoContenido += `Número de Estructura: ${registro.numeroEstructura}\n`;
-            archivoContenido += `Tipo de Estructura: ${registro.tipoEstructura}\n`;
-            archivoContenido += `Fecha: ${registro.fecha}\n`;
-            
-            // Contar tipos de estructura
-            contadores[registro.tipoEstructura]++;
-            
-            if (registro.tipoEstructura === 'Pequeño Productor' && registro.cultivos.length > 0) {
-                archivoContenido += `Tipo de Cultivo: ${registro.cultivos.join(', ')}\n`;
-            }
-            
-            archivoContenido += '\n';
-        });
-        
-        // Agregar resumen al final
-        archivoContenido += '\nRESUMEN DE ESTRUCTURAS\n';
-        archivoContenido += '--------------------------------\n';
-        for (const [tipo, cantidad] of Object.entries(contadores)) {
-            archivoContenido += `${tipo}: ${cantidad}\n`;
-        }
-        archivoContenido += '--------------------------------\n';
-        archivoContenido += `TOTAL: ${registros.length} estructuras registradas\n`;
-        
-        // Mostrar el contenido en la página
-        elementos.output.innerHTML = `<pre>${archivoContenido}</pre>`;
-        
-        // Crear el archivo para descargar
-        const blob = new Blob([archivoContenido], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `registros_estructuras_${new Date().toISOString().slice(0,10)}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
-
-    // Limpiar todo
-    elementos.btnLimpiar.addEventListener('click', function() {
-        if (confirm('¿Está seguro que desea eliminar todos los registros?')) {
-            registros = [];
-            localStorage.removeItem('registrosEstructuras');
-            actualizarListaRegistros();
-            elementos.output.textContent = '';
-            actualizarEstadoBotones();
-            alert('Todos los registros han sido eliminados');
-        }
-    });
-
-    // Actualizar lista de registros
     function actualizarListaRegistros() {
-        elementos.listaRegistros.innerHTML = '';
+        elementos.listaRegistros.innerHTML = registros.length ? 
+            registros.map((reg, i) => {
+                let cultivosText = reg.cultivos?.length ? ` - Cultivos: ${reg.cultivos.join(', ')}` : '';
+                return `
+                    <div class="registro-item">
+                        <span>${reg.segmento}-${reg.bloque}-${reg.numeroEstructura} (${reg.tipoEstructura}${cultivosText}) - ${reg.fecha}</span>
+                        <button class="btn-eliminar" data-index="${i}">Eliminar</button>
+                    </div>
+                `;
+            }).join('') : '<p>No hay registros guardados</p>';
         
-        if (registros.length === 0) {
-            elementos.listaRegistros.innerHTML = '<p>No hay registros guardados</p>';
-            return;
-        }
-        
-        registros.forEach((registro, index) => {
-            const registroItem = document.createElement('div');
-            registroItem.className = 'registro-item';
-            
-            let cultivosText = '';
-            if (registro.tipoEstructura === 'Pequeño Productor' && registro.cultivos.length > 0) {
-                cultivosText = ` - Cultivos: ${registro.cultivos.join(', ')}`;
-            }
-            
-            registroItem.innerHTML = `
-                <span>${registro.segmento} - ${registro.bloque} - ${registro.numeroEstructura} - ${registro.tipoEstructura}${cultivosText}</span>
-                <button class="btn-eliminar" data-index="${index}">Eliminar</button>
-            `;
-            
-            elementos.listaRegistros.appendChild(registroItem);
-        });
-        
-        // Agregar eventos a los botones eliminar
         document.querySelectorAll('.btn-eliminar').forEach(btn => {
             btn.addEventListener('click', function() {
                 const index = parseInt(this.getAttribute('data-index'));
-                if (confirm('¿Está seguro que desea eliminar este registro?')) {
+                if (confirm('¿Eliminar este registro?')) {
                     registros.splice(index, 1);
                     localStorage.setItem('registrosEstructuras', JSON.stringify(registros));
                     actualizarListaRegistros();
@@ -437,6 +131,148 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Inicializar la aplicación
+    function actualizarEstadoBotones() {
+        elementos.btnGuardar.disabled = segmentos.length === 0 || bloques.length === 0;
+        elementos.btnGenerar.disabled = registros.length === 0;
+    }
+
+    // Eventos
+    elementos.agregarSegmento.addEventListener('click', function() {
+        const nuevoSegmento = elementos.nuevoSegmento.value.trim().toUpperCase();
+        if (!nuevoSegmento) return alert('Ingrese un código de segmento');
+        
+        if (!segmentos.includes(nuevoSegmento)) {
+            segmentos.push(nuevoSegmento);
+            segmentos.sort();
+            localStorage.setItem('segmentosPersonalizados', JSON.stringify(segmentos));
+            elementos.nuevoSegmento.value = '';
+            actualizarListaSegmentos();
+            actualizarSelectSegmentos();
+        } else {
+            alert('Este segmento ya existe');
+        }
+    });
+
+    elementos.agregarBloque.addEventListener('click', function() {
+        const nuevoBloque = elementos.nuevoBloque.value.trim();
+        if (!nuevoBloque) return alert('Ingrese un número de bloque');
+        
+        if (!bloques.includes(nuevoBloque)) {
+            bloques.push(nuevoBloque);
+            bloques.sort((a, b) => a - b);
+            localStorage.setItem('bloquesPersonalizados', JSON.stringify(bloques));
+            elementos.nuevoBloque.value = '';
+            actualizarListaBloques();
+            actualizarSelectBloques();
+        } else {
+            alert('Este bloque ya existe');
+        }
+    });
+
+    elementos.tipoEstructura.addEventListener('change', function() {
+        elementos.subEstructura.style.display = this.value === 'Pequeño Productor' ? 'block' : 'none';
+    });
+
+    elementos.btnGuardar.addEventListener('click', function() {
+        const codigoTecnico = elementos.codigoTecnico.value.trim();
+        const segmento = elementos.selectSegmento.value;
+        const bloque = elementos.selectBloque.value;
+        const numeroEstructura = elementos.numeroEstructura.value;
+        const tipoEstructura = elementos.tipoEstructura.value;
+        
+        if (!codigoTecnico) return alert('Ingrese su código de técnico');
+        if (!bloque) return alert('Seleccione un bloque');
+        if (!numeroEstructura) return alert('Ingrese el número de estructura');
+        if (!tipoEstructura) return alert('Seleccione un tipo de estructura');
+        
+        let cultivos = [];
+        if (tipoEstructura === 'Pequeño Productor') {
+            cultivos = [
+                document.getElementById('maiz').checked ? 'Maíz' : null,
+                document.getElementById('frijol').checked ? 'Frijol' : null,
+                document.getElementById('maicillo').checked ? 'Maicillo' : null
+            ].filter(Boolean);
+            
+            if (cultivos.length === 0) return alert('Seleccione al menos un cultivo');
+        }
+        
+        registros.push({
+            codigoTecnico,
+            segmento,
+            bloque,
+            numeroEstructura,
+            tipoEstructura,
+            cultivos,
+            fecha: new Date().toLocaleDateString('es-ES')
+        });
+        
+        localStorage.setItem('registrosEstructuras', JSON.stringify(registros));
+        actualizarListaRegistros();
+        actualizarEstadoBotones();
+        
+        // Limpiar campos
+        elementos.numeroEstructura.value = '';
+        elementos.tipoEstructura.value = '';
+        document.querySelectorAll('#subEstructura input[type="checkbox"]').forEach(cb => cb.checked = false);
+        elementos.subEstructura.style.display = 'none';
+    });
+
+    elementos.btnGenerar.addEventListener('click', function() {
+        if (registros.length === 0) return alert('No hay registros para generar');
+        
+        const tecnicos = [...new Set(registros.map(r => r.codigoTecnico))];
+        const segmentosTrab = [...new Set(registros.map(r => r.segmento))].sort();
+        const bloquesTrab = [...new Set(registros.map(r => r.bloque))].sort((a, b) => a - b);
+        
+        let contenido = `REPORTE DE ESTRUCTURAS\n${'-'.repeat(30)}\n\n`;
+        contenido += `FECHA: ${new Date().toLocaleDateString('es-ES', { dateStyle: 'full' })}\n`;
+        contenido += `TÉCNICO: ${tecnicos.join(', ')}\n`;
+        contenido += `SEGMENTOS TRABAJADOS: ${segmentosTrab.join(', ')}\n`;
+        contenido += `BLOQUES TRABAJADOS: ${bloquesTrab.join(', ')}\n\n`;
+        contenido += 'DETALLE DE REGISTROS:\n\n';
+        
+        registros.forEach((reg, i) => {
+            contenido += `REGISTRO ${i + 1}:\n`;
+            contenido += `Tipo: ${reg.tipoEstructura}\n`;
+            if (reg.cultivos?.length) contenido += `Cultivos: ${reg.cultivos.join(', ')}\n`;
+            contenido += `Fecha: ${reg.fecha}\n\n`;
+        });
+        
+        // Resumen estadístico
+        const conteoTipos = registros.reduce((acc, reg) => {
+            acc[reg.tipoEstructura] = (acc[reg.tipoEstructura] || 0) + 1;
+            return acc;
+        }, {});
+        
+        contenido += 'RESUMEN ESTADÍSTICO:\n';
+        contenido += `${'-'.repeat(30)}\n`;
+        for (const [tipo, cantidad] of Object.entries(conteoTipos)) {
+            contenido += `${tipo}: ${cantidad}\n`;
+        }
+        contenido += `${'-'.repeat(30)}\n`;
+        contenido += `TOTAL REGISTROS: ${registros.length}\n`;
+        
+        // Mostrar y descargar
+        elementos.output.textContent = contenido;
+        
+        const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_estructuras_${new Date().toISOString().slice(0, 10)}.txt`;
+        a.click();
+    });
+
+    elementos.btnLimpiar.addEventListener('click', function() {
+        if (confirm('¿Eliminar TODOS los registros?')) {
+            registros = [];
+            localStorage.removeItem('registrosEstructuras');
+            actualizarListaRegistros();
+            elementos.output.textContent = '';
+            actualizarEstadoBotones();
+        }
+    });
+
+    // Inicialización
     cargarDatosIniciales();
 });
