@@ -1,10 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
-    let registros = [];
-    let segmentos = [];
-    let bloques = [];
+    // Datos almacenados
+    let registros = JSON.parse(localStorage.getItem('registrosEstructuras')) || [];
+    let segmentos = JSON.parse(localStorage.getItem('segmentosPersonalizados')) || [];
+    let bloques = JSON.parse(localStorage.getItem('bloquesPersonalizados')) || [];
+    let codigoTecnicoGuardado = localStorage.getItem('codigoTecnico') || '';
     
-    // Elementos del DOM
+    // Referencias a elementos del DOM
     const elementos = {
+        // Campos de formulario
         codigoTecnico: document.getElementById('codigoTecnico'),
         nuevoSegmento: document.getElementById('nuevoSegmento'),
         agregarSegmento: document.getElementById('agregarSegmento'),
@@ -30,15 +33,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cargar datos guardados al iniciar
     function cargarDatosIniciales() {
-        const segmentosGuardados = localStorage.getItem('segmentosPersonalizados');
-        if (segmentosGuardados) segmentos = JSON.parse(segmentosGuardados);
+        // Cargar código técnico si existe
+        if (codigoTecnicoGuardado) {
+            elementos.codigoTecnico.value = codigoTecnicoGuardado;
+        }
         
-        const bloquesGuardados = localStorage.getItem('bloquesPersonalizados');
-        if (bloquesGuardados) bloques = JSON.parse(bloquesGuardados);
-        
-        const registrosGuardados = localStorage.getItem('registrosEstructuras');
-        if (registrosGuardados) registros = JSON.parse(registrosGuardados);
-        
+        // Cargar segmentos y bloques
         actualizarListaSegmentos();
         actualizarSelectSegmentos();
         actualizarListaBloques();
@@ -47,6 +47,12 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarEstadoBotones();
         actualizarContadorRegistros();
     }
+
+    // Guardar código técnico cuando cambia
+    elementos.codigoTecnico.addEventListener('input', function() {
+        const valor = this.value.trim().toUpperCase();
+        localStorage.setItem('codigoTecnico', valor);
+    });
 
     // Funciones para actualizar las listas
     function actualizarListaSegmentos() {
