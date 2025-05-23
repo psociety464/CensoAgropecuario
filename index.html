@@ -8,16 +8,21 @@
 </head>
 <body>
     <div class="container">
-        <h1>Censo Agropecuario </h1>
+        <h1>Generador de Archivos de Texto</h1>
         
+        <!-- Código Técnico -->
+        <div class="form-group">
+            <label for="codigoTecnico">Código Técnico:</label>
+            <input type="text" id="codigoTecnico" placeholder="Ej: TEC-001" class="uppercase-input">
+        </div>
+
         <!-- Gestión de Segmentos -->
         <div class="segmentos-container">
             <h3>Gestión de Segmentos</h3>
             <div class="segmentos-form">
-                <input type="text" id="nuevoSegmento" placeholder="Ingrese un nuevo código de segmento">
+                <input type="text" id="nuevoSegmento" placeholder="Ingrese código de segmento">
                 <button id="agregarSegmento" class="btn-purple">Agregar Segmento</button>
             </div>
-            <p class="aviso-segmento">Debe agregar al menos un segmento para poder guardar registros</p>
             <div class="segmentos-lista" id="listaSegmentos">
                 <p>No hay segmentos agregados</p>
             </div>
@@ -27,10 +32,9 @@
         <div class="segmentos-container">
             <h3>Gestión de Bloques</h3>
             <div class="segmentos-form">
-                <input type="text" id="nuevoBloque" placeholder="Ingrese un nuevo número de bloque">
+                <input type="text" id="nuevoBloque" placeholder="Ingrese número de bloque">
                 <button id="agregarBloque" class="btn-gray">Agregar Bloque</button>
             </div>
-            <p class="aviso-segmento">Debe agregar al menos un bloque para poder guardar registros</p>
             <div class="segmentos-lista" id="listaBloques">
                 <p>No hay bloques agregados</p>
             </div>
@@ -53,13 +57,13 @@
         
         <div class="form-group">
             <label for="numeroEstructura">Número de Estructura:</label>
-            <input type="text" id="numeroEstructura" placeholder="Ingrese el número de estructura">
+            <input type="text" id="numeroEstructura" placeholder="Número de estructura">
         </div>
         
         <div class="form-group">
             <label for="tipoEstructura">Tipo de Estructura:</label>
             <select id="tipoEstructura">
-                <option value="">-- Seleccione un tipo --</option>
+                <option value="">-- Seleccione --</option>
                 <option value="Pequeño Productor">Pequeño Productor</option>
                 <option value="Producción de Patio">Producción de Patio</option>
                 <option value="Estructura Complementaria">Estructura Complementaria</option>
@@ -70,6 +74,12 @@
                 <option value="Estructura Desocupada">Estructura Desocupada</option>
                 <option value="Ausentes">Ausentes</option>
                 <option value="Rechazos">Rechazos</option>
+                <option value="Centro Educativo">Centro Educativo</option>
+                <option value="Centro Religioso">Centro Religioso</option>
+                <option value="No es Estructura">No es Estructura</option>
+                <option value="Establecimiento de Salud">Establecimiento de Salud</option>
+                <option value="Parque o Plaza Pública">Parque o Plaza Pública</option>
+                <option value="Establecimiento">Establecimiento</option>
             </select>
         </div>
         
