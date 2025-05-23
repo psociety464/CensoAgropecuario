@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarSelectBloques();
         actualizarListaRegistros();
         actualizarEstadoBotones();
+        actualizarContadorRegistros(); // Inicializar contador
     }
 
     // Funciones para actualizar las listas
@@ -118,6 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }).join('') : '<p>No hay registros guardados</p>';
         
+        actualizarContadorRegistros();
+        
         document.querySelectorAll('.btn-eliminar').forEach(btn => {
             btn.addEventListener('click', function() {
                 const index = parseInt(this.getAttribute('data-index'));
@@ -135,6 +138,73 @@ document.addEventListener('DOMContentLoaded', function() {
         elementos.btnGuardar.disabled = segmentos.length === 0 || bloques.length === 0;
         elementos.btnGenerar.disabled = registros.length === 0;
     }
+
+    // Función para mostrar el contador de registros
+    function actualizarContadorRegistros() {
+        const contadorExistente = document.getElementById('contador-registros');
+        
+        if (contadorExistente) {
+            contadorExistente.textContent = `Registros guardados: ${registros.length}`;
+        } else {
+            const contador = document.createElement('div');
+            contador.id = 'contador-registros';
+            contador.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-size: 14px;
+            `;
+            contador.textContent = `Registros guardados: ${registros.length}`;
+            document.body.appendChild(contador);
+        }
+    }
+
+    // Función para mostrar notificaciones temporales
+    function mostrarNotificacion(mensaje) {
+        const notificacion = document.createElement('div');
+        notificacion.textContent = mensaje;
+        notificacion.style.cssText = `
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            background: #2196F3;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            font-size: 14px;
+            animation: fadeInOut 3s ease-in-out;
+        `;
+        
+        document.body.appendChild(notificacion);
+        
+        setTimeout(() => {
+            notificacion.style.animation = 'fadeOut 0.5s ease-out';
+            setTimeout(() => notificacion.remove(), 500);
+        }, 2500);
+    }
+
+    // Agregar estilos para las animaciones
+    const estiloContador = document.createElement('style');
+    estiloContador.textContent = `
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(10px); }
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(estiloContador);
 
     // Eventos
     elementos.agregarSegmento.addEventListener('click', function() {
@@ -209,6 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('registrosEstructuras', JSON.stringify(registros));
         actualizarListaRegistros();
         actualizarEstadoBotones();
+        mostrarNotificacion('Registro guardado correctamente');
         
         // Limpiar campos
         elementos.numeroEstructura.value = '';
