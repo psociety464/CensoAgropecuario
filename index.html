@@ -65,6 +65,7 @@
             <select id="tipoEstructura">
                 <option value="">-- Seleccione --</option>
                 <option value="Pequeño Productor">Pequeño Productor</option>
+                <option value="Productor Comercial">Productor Comercial</option>
                 <option value="Producción de Patio">Producción de Patio</option>
                 <option value="Vivienda y Establecimiento">Vivienda y Establecimiento</option>
                 <option value="Nuevo Punto Creado">Nuevo Punto Creado</option>
@@ -78,30 +79,13 @@
                 <option value="Rechazos">Rechazos</option>
                 <option value="Centro Educativo">Centro Educativo</option>
                 <option value="Centro Religioso">Centro Religioso</option>
-                <option value="No es Estructura">No es Estructura</option>
                 <option value="Establecimiento de Salud">Establecimiento de Salud</option>
                 <option value="Parque o Plaza Pública">Parque o Plaza Pública</option>
             </select>
         </div>
         
         <div id="subEstructura">
-            <div class="form-group">
-                <label>Tipo de Cultivo (Pequeño Productor):</label>
-                <div class="checkbox-group">
-                    <div class="checkbox-option">
-                        <input type="checkbox" id="maiz" value="Maíz">
-                        <label for="maiz">Maíz</label>
-                    </div>
-                    <div class="checkbox-option">
-                        <input type="checkbox" id="frijol" value="Frijol">
-                        <label for="frijol">Frijol</label>
-                    </div>
-                    <div class="checkbox-option">
-                        <input type="checkbox" id="maicillo" value="Maicillo">
-                        <label for="maicillo">Maicillo</label>
-                    </div>
-                </div>
-            </div>
+            <!-- Se llena dinámicamente según el tipo de estructura -->
         </div>
         
         <div class="botones">
