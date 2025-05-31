@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Referencias a elementos del DOM
     const elementos = {
-        // Campos de formulario
         codigoTecnico: document.getElementById('codigoTecnico'),
         nuevoSegmento: document.getElementById('nuevoSegmento'),
         agregarSegmento: document.getElementById('agregarSegmento'),
@@ -33,12 +32,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cargar datos guardados al iniciar
     function cargarDatosIniciales() {
-        // Cargar código técnico si existe
         if (codigoTecnicoGuardado) {
             elementos.codigoTecnico.value = codigoTecnicoGuardado;
         }
         
-        // Cargar segmentos y bloques
         actualizarListaSegmentos();
         actualizarSelectSegmentos();
         actualizarListaBloques();
@@ -116,10 +113,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function actualizarListaRegistros() {
         elementos.listaRegistros.innerHTML = registros.length ? 
             registros.map((reg, i) => {
-                let cultivosText = reg.cultivos?.length ? ` - Cultivos: ${reg.cultivos.join(', ')}` : '';
+                let detalles = [];
+                if (reg.cultivos?.length) detalles.push(`Cultivos: ${reg.cultivos.join(', ')}`);
+                if (reg.areaCultivo) detalles.push(`Área: ${reg.areaCultivo}`);
+                if (reg.cultivoPrincipal) detalles.push(`Cultivo Principal: ${reg.cultivoPrincipal}`);
+                if (reg.tipoNuevaEstructura) detalles.push(`Tipo: ${reg.tipoNuevaEstructura}`);
+                if (reg.observaciones) detalles.push(`Obs: ${reg.observaciones.substring(0, 20)}...`);
+                
                 return `
                     <div class="registro-item">
-                        <span>${reg.segmento}-${reg.bloque}-${reg.numeroEstructura} (${reg.tipoEstructura}${cultivosText}) - ${reg.fecha}</span>
+                        <span>${reg.segmento}-${reg.bloque}-${reg.numeroEstructura} (${reg.tipoEstructura}${detalles.length ? ' - ' + detalles.join(', ') : ''}) - ${reg.fecha}</span>
                         <button class="btn-eliminar" data-index="${i}">Eliminar</button>
                     </div>
                 `;
@@ -210,7 +213,163 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(estiloContador);
 
-    // Eventos
+    // Evento para mostrar campos adicionales según tipo de estructura
+    elementos.tipoEstructura.addEventListener('change', function() {
+        const tipoSeleccionado = this.value;
+        elementos.subEstructura.style.display = 'none';
+        elementos.subEstructura.innerHTML = '';
+        
+        if (tipoSeleccionado === 'Pequeño Productor') {
+            elementos.subEstructura.style.display = 'block';
+            elementos.subEstructura.innerHTML = `
+                <div class="form-group">
+                    <label>Tipo de Cultivo:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="maiz" value="Maíz">
+                            <label for="maiz">Maíz</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="frijol" value="Frijol">
+                            <label for="frijol">Frijol</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="maicillo" value="Maicillo">
+                            <label for="maicillo">Maicillo</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } 
+        else if (tipoSeleccionado === 'Productor Comercial') {
+            elementos.subEstructura.style.display = 'block';
+            elementos.subEstructura.innerHTML = `
+                <div class="form-group">
+                    <label>Área de Cultivo:</label>
+                    <div class="input-group">
+                        <input type="number" id="areaCultivo" placeholder="Cantidad">
+                        <select id="unidadArea">
+                            <option value="m²">m²</option>
+                            <option value="Tareas">Tareas</option>
+                            <option value="Manzanas">Manzanas</option>
+                            <option value="Hectáreas">Hectáreas</option>
+                            <option value="Varas">Varas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Principal Cultivo:</label>
+                    <select id="cultivoPrincipal">
+                        <option value="">-- Seleccione --</option>
+                        <option value="Maíz">Maíz</option>
+                        <option value="Frijol">Frijol</option>
+                        <option value="Maicillo">Maicillo</option>
+                        <option value="Hortalizas">Hortalizas</option>
+                        <option value="Frutales">Frutales</option>
+                        <option value="Café">Café</option>
+                        <option value="Caña de Azúcar">Caña de Azúcar</option>
+                        <option value="Granos Básicos">Granos Básicos</option>
+                        <option value="Pecuaria">Pecuaria</option>
+                    </select>
+                </div>
+            `;
+        }
+        else if (tipoSeleccionado === 'Nuevo Punto Creado') {
+            elementos.subEstructura.style.display = 'block';
+            elementos.subEstructura.innerHTML = `
+                <div class="form-group">
+                    <label>Tipo de Nueva Estructura:</label>
+                    <select id="tipoNuevaEstructura" class="sub-select">
+                        <option value="">-- Seleccione --</option>
+                        <option value="Pequeño Productor">Pequeño Productor</option>
+                        <option value="Productor Comercial">Productor Comercial</option>
+                        <option value="Producción de Patio">Producción de Patio</option>
+                        <option value="Vivienda y Establecimiento">Vivienda y Establecimiento</option>
+                        <option value="Estructura Complementaria">Estructura Complementaria</option>
+                        <option value="Estructura sin Producción">Estructura sin Producción</option>
+                        <option value="Guardada Parcial">Guardada Parcial</option>
+                        <option value="Estructura en Construcción">Estructura en Construcción</option>
+                        <option value="Estructura con Cita">Estructura con Cita</option>
+                        <option value="Estructura Desocupada">Estructura Desocupada</option>
+                        <option value="Ausentes">Ausentes</option>
+                        <option value="Rechazos">Rechazos</option>
+                        <option value="Centro Educativo">Centro Educativo</option>
+                        <option value="Centro Religioso">Centro Religioso</option>
+                        <option value="Establecimiento de Salud">Establecimiento de Salud</option>
+                        <option value="Parque o Plaza Pública">Parque o Plaza Pública</option>
+                    </select>
+                </div>
+                <div id="subTipoContainer">
+                    <!-- Aquí se cargarán los campos específicos del subtipo seleccionado -->
+                </div>
+                <div class="form-group">
+                    <label>Observaciones:</label>
+                    <textarea id="observacionesNuevoPunto" rows="3" placeholder="Ingrese observaciones"></textarea>
+                </div>
+            `;
+
+            // Evento para el subselector
+            document.getElementById('tipoNuevaEstructura').addEventListener('change', function() {
+                const subTipo = this.value;
+                const container = document.getElementById('subTipoContainer');
+                container.innerHTML = '';
+                
+                if (subTipo === 'Pequeño Productor') {
+                    container.innerHTML = `
+                        <div class="form-group">
+                            <label>Tipo de Cultivo:</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="nuevoMaiz" value="Maíz">
+                                    <label for="nuevoMaiz">Maíz</label>
+                                </div>
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="nuevoFrijol" value="Frijol">
+                                    <label for="nuevoFrijol">Frijol</label>
+                                </div>
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="nuevoMaicillo" value="Maicillo">
+                                    <label for="nuevoMaicillo">Maicillo</label>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                else if (subTipo === 'Productor Comercial') {
+                    container.innerHTML = `
+                        <div class="form-group">
+                            <label>Área de Cultivo:</label>
+                            <div class="input-group">
+                                <input type="number" id="nuevoAreaCultivo" placeholder="Cantidad">
+                                <select id="nuevoUnidadArea">
+                                    <option value="m²">m²</option>
+                                    <option value="Tareas">Tareas</option>
+                                    <option value="Manzanas">Manzanas</option>
+                                    <option value="Hectáreas">Hectáreas</option>
+                                    <option value="Varas">Varas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Principal Cultivo:</label>
+                            <select id="nuevoCultivoPrincipal">
+                                <option value="">-- Seleccione --</option>
+                                <option value="Maíz">Maíz</option>
+                                <option value="Frijol">Frijol</option>
+                                <option value="Maicillo">Maicillo</option>
+                                <option value="Hortalizas">Hortalizas</option>
+                                <option value="Frutales">Frutales</option>
+                                <option value="Café">Café</option>
+                                <option value="Caña de Azúcar">Caña de Azúcar</option>
+                            </select>
+                        </div>
+                    `;
+                }
+            });
+        }
+    });
+
+    // Eventos para los botones
     elementos.agregarSegmento.addEventListener('click', function() {
         const nuevoSegmento = elementos.nuevoSegmento.value.trim().toUpperCase();
         if (!nuevoSegmento) return alert('Ingrese un código de segmento');
@@ -222,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elementos.nuevoSegmento.value = '';
             actualizarListaSegmentos();
             actualizarSelectSegmentos();
+            mostrarNotificacion('Segmento agregado correctamente');
         } else {
             alert('Este segmento ya existe');
         }
@@ -238,13 +398,10 @@ document.addEventListener('DOMContentLoaded', function() {
             elementos.nuevoBloque.value = '';
             actualizarListaBloques();
             actualizarSelectBloques();
+            mostrarNotificacion('Bloque agregado correctamente');
         } else {
             alert('Este bloque ya existe');
         }
-    });
-
-    elementos.tipoEstructura.addEventListener('change', function() {
-        elementos.subEstructura.style.display = this.value === 'Pequeño Productor' ? 'block' : 'none';
     });
 
     elementos.btnGuardar.addEventListener('click', function() {
@@ -260,15 +417,62 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!numeroEstructura) return alert('Ingrese el número de estructura');
         if (!tipoEstructura) return alert('Seleccione un tipo de estructura');
         
-        let cultivos = [];
+        let datosAdicionales = {};
+        
         if (tipoEstructura === 'Pequeño Productor') {
-            cultivos = [
-                document.getElementById('maiz').checked ? 'Maíz' : null,
-                document.getElementById('frijol').checked ? 'Frijol' : null,
-                document.getElementById('maicillo').checked ? 'Maicillo' : null
+            const cultivos = [
+                document.getElementById('maiz')?.checked ? 'Maíz' : null,
+                document.getElementById('frijol')?.checked ? 'Frijol' : null,
+                document.getElementById('maicillo')?.checked ? 'Maicillo' : null
             ].filter(Boolean);
             
             if (cultivos.length === 0) return alert('Seleccione al menos un cultivo');
+            datosAdicionales.cultivos = cultivos;
+        } 
+        else if (tipoEstructura === 'Productor Comercial') {
+            const areaCultivo = document.getElementById('areaCultivo')?.value;
+            const unidadArea = document.getElementById('unidadArea')?.value;
+            const cultivoPrincipal = document.getElementById('cultivoPrincipal')?.value;
+            
+            if (!areaCultivo) return alert('Ingrese el área de cultivo');
+            if (!cultivoPrincipal) return alert('Seleccione el cultivo principal');
+            
+            datosAdicionales.areaCultivo = `${areaCultivo} ${unidadArea}`;
+            datosAdicionales.cultivoPrincipal = cultivoPrincipal;
+        }
+        else if (tipoEstructura === 'Nuevo Punto Creado') {
+            const tipoNuevaEstructura = document.getElementById('tipoNuevaEstructura')?.value;
+            const observaciones = document.getElementById('observacionesNuevoPunto')?.value;
+            
+            if (!tipoNuevaEstructura) return alert('Seleccione el tipo de nueva estructura');
+            
+            datosAdicionales.tipoNuevaEstructura = tipoNuevaEstructura;
+            datosAdicionales.observaciones = observaciones || 'Sin observaciones';
+            
+            // Campos específicos para Pequeño Productor
+            if (tipoNuevaEstructura === 'Pequeño Productor') {
+                const cultivos = [
+                    document.getElementById('nuevoMaiz')?.checked ? 'Maíz' : null,
+                    document.getElementById('nuevoFrijol')?.checked ? 'Frijol' : null,
+                    document.getElementById('nuevoMaicillo')?.checked ? 'Maicillo' : null
+                ].filter(Boolean);
+                
+                if (cultivos.length === 0) return alert('Seleccione al menos un cultivo');
+                datosAdicionales.cultivos = cultivos;
+            }
+            
+            // Campos específicos para Productor Comercial
+            if (tipoNuevaEstructura === 'Productor Comercial') {
+                const areaCultivo = document.getElementById('nuevoAreaCultivo')?.value;
+                const unidadArea = document.getElementById('nuevoUnidadArea')?.value;
+                const cultivoPrincipal = document.getElementById('nuevoCultivoPrincipal')?.value;
+                
+                if (!areaCultivo) return alert('Ingrese el área de cultivo');
+                if (!cultivoPrincipal) return alert('Seleccione el cultivo principal');
+                
+                datosAdicionales.areaCultivo = `${areaCultivo} ${unidadArea}`;
+                datosAdicionales.cultivoPrincipal = cultivoPrincipal;
+            }
         }
         
         registros.push({
@@ -277,8 +481,12 @@ document.addEventListener('DOMContentLoaded', function() {
             bloque,
             numeroEstructura,
             tipoEstructura,
-            cultivos,
-            fecha: new Date().toLocaleDateString('es-ES')
+            ...datosAdicionales,
+            fecha: new Date().toLocaleDateString('es-ES', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit'
+            })
         });
         
         localStorage.setItem('registrosEstructuras', JSON.stringify(registros));
@@ -289,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpiar campos
         elementos.numeroEstructura.value = '';
         elementos.tipoEstructura.value = '';
-        document.querySelectorAll('#subEstructura input[type="checkbox"]').forEach(cb => cb.checked = false);
         elementos.subEstructura.style.display = 'none';
     });
 
@@ -301,7 +508,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const bloquesTrab = [...new Set(registros.map(r => r.bloque))].sort((a, b) => a - b);
         
         let contenido = `REPORTE DE ESTRUCTURAS\n${'-'.repeat(30)}\n\n`;
-        contenido += `FECHA: ${new Date().toLocaleDateString('es-ES', { dateStyle: 'full' })}\n`;
+        contenido += `FECHA: ${new Date().toLocaleDateString('es-ES', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        })}\n`;
         contenido += `TÉCNICO: ${tecnicos.join(', ')}\n`;
         contenido += `SEGMENTOS TRABAJADOS: ${segmentosTrab.join(', ')}\n`;
         contenido += `BLOQUES TRABAJADOS: ${bloquesTrab.join(', ')}\n\n`;
@@ -309,8 +521,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         registros.forEach((reg, i) => {
             contenido += `REGISTRO ${i + 1}:\n`;
+            contenido += `Código: ${reg.segmento}-${reg.bloque}-${reg.numeroEstructura}\n`;
             contenido += `Tipo: ${reg.tipoEstructura}\n`;
+            
+            if (reg.tipoNuevaEstructura) contenido += `Tipo Nueva Estructura: ${reg.tipoNuevaEstructura}\n`;
             if (reg.cultivos?.length) contenido += `Cultivos: ${reg.cultivos.join(', ')}\n`;
+            if (reg.areaCultivo) contenido += `Área Cultivo: ${reg.areaCultivo}\n`;
+            if (reg.cultivoPrincipal) contenido += `Cultivo Principal: ${reg.cultivoPrincipal}\n`;
+            if (reg.observaciones) contenido += `Observaciones: ${reg.observaciones}\n`;
+            
             contenido += `Fecha: ${reg.fecha}\n\n`;
         });
         
@@ -328,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
         contenido += `${'-'.repeat(30)}\n`;
         contenido += `TOTAL REGISTROS: ${registros.length}\n`;
         
-        // Mostrar y descargar (con UTF-8 para tildes/ñ)
+        // Mostrar y descargar
         elementos.output.textContent = contenido;
         const blob = new Blob(["\uFEFF" + contenido], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -345,6 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
             actualizarListaRegistros();
             elementos.output.textContent = '';
             actualizarEstadoBotones();
+            mostrarNotificacion('Todos los registros han sido eliminados');
         }
     });
 
