@@ -32,12 +32,18 @@ label {
     font-weight: bold;
 }
 
-select, input {
+select, input, textarea {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 60px;
+    font-family: Arial, sans-serif;
 }
 
 button {
@@ -91,8 +97,24 @@ button:hover {
 #subEstructura {
     display: none;
     margin-top: 10px;
-    padding-left: 15px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
     border-left: 3px solid #4CAF50;
+}
+
+.sub-select {
+    background-color: #f8f9fa;
+    border-left: 3px solid #673AB7;
+    padding-left: 10px;
+}
+
+#subTipoContainer {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    border-left: 3px solid #2196F3;
 }
 
 .checkbox-group {
@@ -217,6 +239,19 @@ footer {
 .registro-item span {
     font-family: 'Courier New', monospace;
     font-size: 0.9em;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.input-group input {
+    flex: 1;
+}
+
+.input-group select {
+    flex: 0 0 120px;
 }
 
 @media (max-width: 768px) {
