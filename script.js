@@ -114,11 +114,19 @@ document.addEventListener('DOMContentLoaded', function() {
         elementos.listaRegistros.innerHTML = registros.length ? 
             registros.map((reg, i) => {
                 let detalles = [];
-                if (reg.cultivos?.length) detalles.push(`Cultivos: ${reg.cultivos.join(', ')}`);
-                if (reg.areaCultivo) detalles.push(`Área: ${reg.areaCultivo}`);
-                if (reg.cultivoPrincipal) detalles.push(`Cultivo Principal: ${reg.cultivoPrincipal}`);
+                
                 if (reg.tipoNuevaEstructura) detalles.push(`Tipo: ${reg.tipoNuevaEstructura}`);
                 if (reg.observaciones) detalles.push(`Obs: ${reg.observaciones.substring(0, 20)}...`);
+                
+                // Manejo de cultivos para Pequeño Productor
+                if (reg.cultivos && Array.isArray(reg.cultivos)) {
+                    if (reg.tipoEstructura === 'Pequeño Productor') {
+                        detalles.push(`Cultivos: ${reg.cultivos.join(', ')}`);
+                    } else if (reg.tipoEstructura === 'Productor Comercial') {
+                        const cultivosText = reg.cultivos.map(c => `${c.tipo} (${c.area})`).join(', ');
+                        detalles.push(`Cultivos: ${cultivosText}`);
+                    }
+                }
                 
                 return `
                     <div class="registro-item">
@@ -198,21 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2500);
     }
 
-    // Agregar estilos para las animaciones
-    const estiloContador = document.createElement('style');
-    estiloContador.textContent = `
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(10px); }
-            20% { opacity: 1; transform: translateY(0); }
-            80% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(10px); }
-        }
-        @keyframes fadeOut {
-            to { opacity: 0; }
-        }
-    `;
-    document.head.appendChild(estiloContador);
-
     // Evento para mostrar campos adicionales según tipo de estructura
     elementos.tipoEstructura.addEventListener('change', function() {
         const tipoSeleccionado = this.value;
@@ -244,35 +237,95 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (tipoSeleccionado === 'Productor Comercial') {
             elementos.subEstructura.style.display = 'block';
             elementos.subEstructura.innerHTML = `
-                <div class="form-group">
-                    <label>Área de Cultivo:</label>
-                    <div class="input-group">
-                        <input type="number" id="areaCultivo" placeholder="Cantidad">
-                        <select id="unidadArea">
-                            <option value="m²">m²</option>
-                            <option value="Tareas">Tareas</option>
-                            <option value="Manzanas">Manzanas</option>
-                            <option value="Hectáreas">Hectáreas</option>
-                            <option value="Varas">Varas</option>
-                        </select>
+                <div id="cultivosContainer">
+                    <div class="cultivo-item">
+                        <div class="form-group">
+                            <label>Cultivo:</label>
+                            <select class="cultivo-select">
+                                <option value="">-- Seleccione --</option>
+                                <option value="Maíz">Maíz</option>
+                                <option value="Frijol">Frijol</option>
+                                <option value="Maicillo">Maicillo</option>
+                                <option value="Hortalizas">Hortalizas</option>
+                                <option value="Frutales">Frutales</option>
+                                <option value="Café">Café</option>
+                                <option value="Caña de Azúcar">Caña de Azúcar</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Área de Cultivo:</label>
+                            <div class="input-group">
+                                <input type="number" class="area-cultivo" placeholder="Cantidad">
+                                <select class="unidad-area">
+                                    <option value="m²">m²</option>
+                                    <option value="Tareas">Tareas</option>
+                                    <option value="Manzanas">Manzanas</option>
+                                    <option value="Hectáreas">Hectáreas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-eliminar-cultivo btn-red">Eliminar</button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Principal Cultivo:</label>
-                    <select id="cultivoPrincipal">
-                        <option value="">-- Seleccione --</option>
-                        <option value="Maíz">Maíz</option>
-                        <option value="Frijol">Frijol</option>
-                        <option value="Maicillo">Maicillo</option>
-                        <option value="Hortalizas">Hortalizas</option>
-                        <option value="Frutales">Frutales</option>
-                        <option value="Café">Café</option>
-                        <option value="Caña de Azúcar">Caña de Azúcar</option>
-                        <option value="Granos Básicos">Granos Básicos</option>
-                        <option value="Pecuaria">Pecuaria</option>
-                    </select>
-                </div>
+                <button id="agregarCultivo" class="btn-blue" style="margin-top: 10px;">Agregar otro cultivo</button>
             `;
+
+            // Evento para agregar más cultivos
+            document.getElementById('agregarCultivo').addEventListener('click', function() {
+                const container = document.getElementById('cultivosContainer');
+                const nuevoCultivo = document.createElement('div');
+                nuevoCultivo.className = 'cultivo-item';
+                nuevoCultivo.innerHTML = `
+                    <div class="form-group">
+                        <label>Cultivo:</label>
+                        <select class="cultivo-select">
+                            <option value="">-- Seleccione --</option>
+                            <option value="Maíz">Maíz</option>
+                            <option value="Frijol">Frijol</option>
+                            <option value="Maicillo">Maicillo</option>
+                            <option value="Hortalizas">Hortalizas</option>
+                            <option value="Frutales">Frutales</option>
+                            <option value="Café">Café</option>
+                            <option value="Caña de Azúcar">Caña de Azúcar</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Área de Cultivo:</label>
+                        <div class="input-group">
+                            <input type="number" class="area-cultivo" placeholder="Cantidad">
+                            <select class="unidad-area">
+                                <option value="m²">m²</option>
+                                <option value="Tareas">Tareas</option>
+                                <option value="Manzanas">Manzanas</option>
+                                <option value="Hectáreas">Hectáreas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-eliminar-cultivo btn-red">Eliminar</button>
+                `;
+                container.appendChild(nuevoCultivo);
+
+                // Agregar evento al nuevo botón de eliminar
+                nuevoCultivo.querySelector('.btn-eliminar-cultivo').addEventListener('click', function() {
+                    if (container.children.length > 1) {
+                        container.removeChild(nuevoCultivo);
+                    } else {
+                        alert('Debe haber al menos un cultivo');
+                    }
+                });
+            });
+
+            // Evento para eliminar cultivos
+            document.querySelectorAll('.btn-eliminar-cultivo').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const container = document.getElementById('cultivosContainer');
+                    if (container.children.length > 1) {
+                        container.removeChild(this.parentElement);
+                    } else {
+                        alert('Debe haber al menos un cultivo');
+                    }
+                });
+            });
         }
         else if (tipoSeleccionado === 'Nuevo Punto Creado') {
             elementos.subEstructura.style.display = 'block';
@@ -337,33 +390,95 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 else if (subTipo === 'Productor Comercial') {
                     container.innerHTML = `
-                        <div class="form-group">
-                            <label>Área de Cultivo:</label>
-                            <div class="input-group">
-                                <input type="number" id="nuevoAreaCultivo" placeholder="Cantidad">
-                                <select id="nuevoUnidadArea">
-                                    <option value="m²">m²</option>
-                                    <option value="Tareas">Tareas</option>
-                                    <option value="Manzanas">Manzanas</option>
-                                    <option value="Hectáreas">Hectáreas</option>
-                                    <option value="Varas">Varas</option>
-                                </select>
+                        <div id="nuevoCultivosContainer">
+                            <div class="cultivo-item">
+                                <div class="form-group">
+                                    <label>Cultivo:</label>
+                                    <select class="nuevo-cultivo-select">
+                                        <option value="">-- Seleccione --</option>
+                                        <option value="Maíz">Maíz</option>
+                                        <option value="Frijol">Frijol</option>
+                                        <option value="Maicillo">Maicillo</option>
+                                        <option value="Hortalizas">Hortalizas</option>
+                                        <option value="Frutales">Frutales</option>
+                                        <option value="Café">Café</option>
+                                        <option value="Caña de Azúcar">Caña de Azúcar</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Área de Cultivo:</label>
+                                    <div class="input-group">
+                                        <input type="number" class="nuevo-area-cultivo" placeholder="Cantidad">
+                                        <select class="nuevo-unidad-area">
+                                            <option value="m²">m²</option>
+                                            <option value="Tareas">Tareas</option>
+                                            <option value="Manzanas">Manzanas</option>
+                                            <option value="Hectáreas">Hectáreas</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn-eliminar-cultivo btn-red">Eliminar</button>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Principal Cultivo:</label>
-                            <select id="nuevoCultivoPrincipal">
-                                <option value="">-- Seleccione --</option>
-                                <option value="Maíz">Maíz</option>
-                                <option value="Frijol">Frijol</option>
-                                <option value="Maicillo">Maicillo</option>
-                                <option value="Hortalizas">Hortalizas</option>
-                                <option value="Frutales">Frutales</option>
-                                <option value="Café">Café</option>
-                                <option value="Caña de Azúcar">Caña de Azúcar</option>
-                            </select>
-                        </div>
+                        <button id="agregarNuevoCultivo" class="btn-blue" style="margin-top: 10px;">Agregar otro cultivo</button>
                     `;
+
+                    // Evento para agregar más cultivos en nuevo punto creado
+                    document.getElementById('agregarNuevoCultivo').addEventListener('click', function() {
+                        const container = document.getElementById('nuevoCultivosContainer');
+                        const nuevoCultivo = document.createElement('div');
+                        nuevoCultivo.className = 'cultivo-item';
+                        nuevoCultivo.innerHTML = `
+                            <div class="form-group">
+                                <label>Cultivo:</label>
+                                <select class="nuevo-cultivo-select">
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="Maíz">Maíz</option>
+                                    <option value="Frijol">Frijol</option>
+                                    <option value="Maicillo">Maicillo</option>
+                                    <option value="Hortalizas">Hortalizas</option>
+                                    <option value="Frutales">Frutales</option>
+                                    <option value="Café">Café</option>
+                                    <option value="Caña de Azúcar">Caña de Azúcar</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Área de Cultivo:</label>
+                                <div class="input-group">
+                                    <input type="number" class="nuevo-area-cultivo" placeholder="Cantidad">
+                                    <select class="nuevo-unidad-area">
+                                        <option value="m²">m²</option>
+                                        <option value="Tareas">Tareas</option>
+                                        <option value="Manzanas">Manzanas</option>
+                                        <option value="Hectáreas">Hectáreas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn-eliminar-cultivo btn-red">Eliminar</button>
+                        `;
+                        container.appendChild(nuevoCultivo);
+
+                        // Agregar evento al nuevo botón de eliminar
+                        nuevoCultivo.querySelector('.btn-eliminar-cultivo').addEventListener('click', function() {
+                            if (container.children.length > 1) {
+                                container.removeChild(nuevoCultivo);
+                            } else {
+                                alert('Debe haber al menos un cultivo');
+                            }
+                        });
+                    });
+
+                    // Evento para eliminar cultivos en nuevo punto creado
+                    document.querySelectorAll('#nuevoCultivosContainer .btn-eliminar-cultivo').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const container = document.getElementById('nuevoCultivosContainer');
+                            if (container.children.length > 1) {
+                                container.removeChild(this.parentElement);
+                            } else {
+                                alert('Debe haber al menos un cultivo');
+                            }
+                        });
+                    });
                 }
             });
         }
@@ -430,15 +545,24 @@ document.addEventListener('DOMContentLoaded', function() {
             datosAdicionales.cultivos = cultivos;
         } 
         else if (tipoEstructura === 'Productor Comercial') {
-            const areaCultivo = document.getElementById('areaCultivo')?.value;
-            const unidadArea = document.getElementById('unidadArea')?.value;
-            const cultivoPrincipal = document.getElementById('cultivoPrincipal')?.value;
+            const cultivosItems = document.querySelectorAll('#cultivosContainer .cultivo-item');
+            const cultivosData = [];
             
-            if (!areaCultivo) return alert('Ingrese el área de cultivo');
-            if (!cultivoPrincipal) return alert('Seleccione el cultivo principal');
+            for (const item of cultivosItems) {
+                const cultivo = item.querySelector('.cultivo-select').value;
+                const area = item.querySelector('.area-cultivo').value;
+                const unidad = item.querySelector('.unidad-area').value;
+                
+                if (!cultivo) return alert('Seleccione el tipo de cultivo');
+                if (!area) return alert('Ingrese el área de cultivo');
+                
+                cultivosData.push({
+                    tipo: cultivo,
+                    area: `${area} ${unidad}`
+                });
+            }
             
-            datosAdicionales.areaCultivo = `${areaCultivo} ${unidadArea}`;
-            datosAdicionales.cultivoPrincipal = cultivoPrincipal;
+            datosAdicionales.cultivos = cultivosData;
         }
         else if (tipoEstructura === 'Nuevo Punto Creado') {
             const tipoNuevaEstructura = document.getElementById('tipoNuevaEstructura')?.value;
@@ -463,15 +587,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Campos específicos para Productor Comercial
             if (tipoNuevaEstructura === 'Productor Comercial') {
-                const areaCultivo = document.getElementById('nuevoAreaCultivo')?.value;
-                const unidadArea = document.getElementById('nuevoUnidadArea')?.value;
-                const cultivoPrincipal = document.getElementById('nuevoCultivoPrincipal')?.value;
+                const cultivosItems = document.querySelectorAll('#nuevoCultivosContainer .cultivo-item');
+                const cultivosData = [];
                 
-                if (!areaCultivo) return alert('Ingrese el área de cultivo');
-                if (!cultivoPrincipal) return alert('Seleccione el cultivo principal');
+                for (const item of cultivosItems) {
+                    const cultivo = item.querySelector('.nuevo-cultivo-select').value;
+                    const area = item.querySelector('.nuevo-area-cultivo').value;
+                    const unidad = item.querySelector('.nuevo-unidad-area').value;
+                    
+                    if (!cultivo) return alert('Seleccione el tipo de cultivo');
+                    if (!area) return alert('Ingrese el área de cultivo');
+                    
+                    cultivosData.push({
+                        tipo: cultivo,
+                        area: `${area} ${unidad}`
+                    });
+                }
                 
-                datosAdicionales.areaCultivo = `${areaCultivo} ${unidadArea}`;
-                datosAdicionales.cultivoPrincipal = cultivoPrincipal;
+                datosAdicionales.cultivos = cultivosData;
             }
         }
         
@@ -525,11 +658,20 @@ document.addEventListener('DOMContentLoaded', function() {
             contenido += `Tipo: ${reg.tipoEstructura}\n`;
             
             if (reg.tipoNuevaEstructura) contenido += `Tipo Nueva Estructura: ${reg.tipoNuevaEstructura}\n`;
-            if (reg.cultivos?.length) contenido += `Cultivos: ${reg.cultivos.join(', ')}\n`;
-            if (reg.areaCultivo) contenido += `Área Cultivo: ${reg.areaCultivo}\n`;
-            if (reg.cultivoPrincipal) contenido += `Cultivo Principal: ${reg.cultivoPrincipal}\n`;
-            if (reg.observaciones) contenido += `Observaciones: ${reg.observaciones}\n`;
             
+            // Manejo de cultivos
+            if (Array.isArray(reg.cultivos)) {
+                if (reg.tipoEstructura === 'Pequeño Productor') {
+                    contenido += `Cultivos: ${reg.cultivos.join(', ')}\n`;
+                } else {
+                    contenido += `Cultivos:\n`;
+                    reg.cultivos.forEach(cultivo => {
+                        contenido += `- ${cultivo.tipo}: ${cultivo.area}\n`;
+                    });
+                }
+            }
+            
+            if (reg.observaciones) contenido += `Observaciones: ${reg.observaciones}\n`;
             contenido += `Fecha: ${reg.fecha}\n\n`;
         });
         
